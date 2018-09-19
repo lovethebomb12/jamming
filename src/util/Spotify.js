@@ -37,7 +37,7 @@ const Spotify = {
         if(response.ok) {
           return response.json();
         }
-     }).then(jsonResponse.tracks => {
+     }).then(jsonResponse => {
        if(jsonResponse.tracks) {
          return jsonResponse.tracks.items.map(track => ({
            id: track.id,
@@ -54,21 +54,21 @@ const Spotify = {
    savePlaylist(playlistName, trackURIs) {
      let accessToken = Spotify.getAccessToken();
      const headers = { Authorization: `Bearer ${accessToken}` };
-     let userID = '';
-     let playlistID = '';
+     let userId = '';
+     let playlistId = '';
 
      if (!playlistName || !trackURIs) {
        return;
      }
 
      return fetch(`https://api.spotify.com/v1/me`, {headers: headers}).then(response => {
-       if (response.ok) {
-         return response.json();
-       }
-     }).then(jsonResponse => {
-       userID = jsonResponse.id;
 
-       return fetch(`/v1/users/${userID}/playlists`, {
+         return response.json();
+       
+     }).then(jsonResponse => {
+       userId = jsonResponse.id;
+
+       return fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
          headers: {Authorization: `Bearer ${accessToken}`,'Content-type': 'application/json'},
          method: 'POST',
          body: JSON.stringify({name: playlistName})
@@ -77,18 +77,18 @@ const Spotify = {
            return response.json();
          }
        }).then(jsonResponse => {
-            playlistID = jsonResponse.id;
+            playlistId = jsonResponse.id;
 
-            return fetch(`/v1/users/${userID}/playlists/${playlistID}/tracks`, {
+            return fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`, {
               headers: {Authorization: `Bearer ${accessToken}`,'Content-type': 'application/json'},
               method: 'POST',
-              body JSON.stringify({uris: trackURIs})
+              body: JSON.stringify({uris: trackURIs})
             }).then(response => {
               if (response.ok) {
                 return response.json();
               }
             }).then(jsonResponse => {
-                 playlistID = jsonResponse.id;
+                 playlistId = jsonResponse.id;
          });
        });
      });
